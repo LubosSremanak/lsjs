@@ -1,7 +1,10 @@
 /**
  * Class for work with Component DOM
  */
-export class Renderer {
+import Logger from "./logger";
+
+
+export default class Renderer {
     constructor(component, selector, dom) {
         this.component = component;
         this.selector = selector;
@@ -19,10 +22,10 @@ export class Renderer {
      * @param id
      */
     get(id) {
-        if (!this.dom) {
-            console.error('Component isn\'t initialized')
-        }
-        return this.dom.getElementById(id);
+        Logger.checkInitializedDom(this.dom);
+        const element = this.dom.getElementById(id);
+        Logger.checkElementExists(id, element);
+        return element;
     }
 
     /**
@@ -66,7 +69,9 @@ export class Renderer {
      *    change('container',UserComponent);
      */
     change(parentId, component) {
-        this.dom.getElementById(parentId).innerHTML = "";
+        const container = this.dom.getElementById(parentId);
+        Logger.checkElementExists(parentId, container);
+        container.innerHTML = "";
         return this.append(parentId, component);
     }
 
@@ -83,7 +88,9 @@ export class Renderer {
      */
     append(parentId, component) {
         const dynamicComponent = this.createComponent(component);
-        this.dom.getElementById(parentId).append(dynamicComponent);
+        const container = this.dom.getElementById(parentId);
+        Logger.checkElementExists(parentId, container);
+        container.append(dynamicComponent);
         return dynamicComponent;
     }
 
@@ -100,7 +107,9 @@ export class Renderer {
      */
     prepend(parentId, component) {
         const dynamicComponent = this.createComponent(component);
-        this.dom.getElementById(parentId).prepend(dynamicComponent);
+        const container = this.dom.getElementById(parentId);
+        Logger.checkElementExists(parentId, container);
+        container.prepend(dynamicComponent);
         return dynamicComponent;
     }
 
@@ -130,6 +139,7 @@ export class Renderer {
      */
     removeById(id) {
         const element = this.dom.getElementById(id);
+        Logger.checkElementExists(id, element);
         const parent = element.parentNode;
         parent.removeChild(element);
     }
@@ -160,12 +170,10 @@ export class Renderer {
      *      const name=getProp('name');
      */
     getProp(name) {
-        try {
-            return JSON.parse(this.component.attributes.getNamedItem(name).value);
-        } catch (e) {
-            const componentName = this.selector;
-            console.warn(`Attribute "${name}" is not set in component "${componentName}"`);
-        }
+        const attribute = this.component.attributes.getNamedItem(name);
+        const componentName = this.selector;
+        Logger.checkAttribute(attribute, name, componentName);
+        return JSON.parse(attribute.value);
 
     }
 
@@ -280,7 +288,7 @@ export class Renderer {
      * @param handler
      */
     subscribe(component, type, handler) {
-        component.addEventListener(type, (e) => this.changeEvent(e, handler));
+        component.addEventListener(type, (e) => Renderer.#changeEvent(e, handler));
     }
 
     /**
@@ -293,10 +301,10 @@ export class Renderer {
      */
     subscribeById(id, type, handler) {
         const element = this.get(id)
-        element.addEventListener(type, (e) => this.#changeEvent(e, handler));
+        element.addEventListener(type, (e) => Renderer.#changeEvent(e, handler));
     }
 
-    #changeEvent(event, handler) {
+    static #changeEvent(event, handler) {
         handler(event.detail);
     }
 }

@@ -1,4 +1,5 @@
-import {Renderer} from "../services/renderer.service.js";
+import Logger from "../services/logger";
+import Renderer from "../services/renderer";
 
 
 export class Component extends HTMLElement {
@@ -7,18 +8,50 @@ export class Component extends HTMLElement {
 
     constructor(filename) {
         super();
-        if (!filename) {
-            console.error(`You need to input __dirname constant in super constructor in ${this.constructor.name}`)
-        }
+        Logger.checkConstructor(filename);
+        this.#initializeComponent(filename).then();
+    }
+
+
+    async #initializeComponent(filename) {
         this.firstChange = true;
         const props = this.constructor.props;
         Component.props = props ? props : [];
         Component.selector = Component.getSelector(this.constructor.name);
         this.dom = this.attachShadow({mode: 'open'});
         this.renderer = new Renderer(this, Component.selector, this.dom);
-        this.renderComponent(filename.normalize()).then();
+        await this.#renderComponent(filename.normalize());
+        await this.onInit();
     }
 
+    async #renderComponent(path) {
+        const pathAttributes = path.split('/');
+        pathAttributes.shift()
+        pathAttributes.shift();
+        const dir = pathAttributes.join('/');
+        const shared = await import  (`/src/styles.css`);
+        this.#addStyle(shared.default);
+        const css = await import  (`/src/app/${dir}/${Component.selector}.component.css`);
+        const display = `:host{display:block;}`
+        this.#addStyle(css.default, display);
+        const html = await import  (`/src/app/${dir}/${Component.selector}.component.html`);
+        this.#addTemplate(html.default);
+    }
+
+    static getSelector(name) {
+        const selector = name.replace('Component', '');
+        return selector.at(0).toLowerCase() + selector.slice(1);
+    }
+
+    #addTemplate(html) {
+        this.dom.innerHTML += html;
+    }
+
+    #addStyle(style, addonStyle) {
+        let css = document.createElement("style");
+        css.textContent = style + addonStyle;
+        this.dom.appendChild(css);
+    }
 
     get(id) {
         return this.renderer.get(id);
@@ -28,51 +61,18 @@ export class Component extends HTMLElement {
         return document.createElement(tagName);
     }
 
-    renderComponent = async (path) => {
-        const pathAttributes = path.split('/');
-        pathAttributes.shift()
-        pathAttributes.shift();
-        const dir = pathAttributes.join('/');
-        const shared = await import  (`/src/styles.css`);
-        this.setCSS(shared.default);
-        const css = await import  (`/src/app/${dir}/${Component.selector}.component.css`);
-        const display = `:host{display:block;}`
-        this.setCSS(css.default, display);
-        const html = await import  (`/src/app/${dir}/${Component.selector}.component.html`);
-        this.setHTML(html.default);
-        await this.onInit();
-    };
-
-    static getSelector(name) {
-        const selector = name.replace('Component', '');
-        return selector.at(0).toLowerCase() + selector.slice(1);
-    }
-
-    getComponentFilePath(path, format) {
-        return `${path}/${Component.selector}.component.${format}`;
-    }
-
-    setHTML(html) {
-        this.dom.innerHTML += html;
-    }
-
-    setCSS(style,addonStyle) {
-        let css = document.createElement("style");
-        css.textContent = style+addonStyle;
-        this.dom.appendChild(css);
-    }
 
     static get observedAttributes() {
         return this.props;
     }
 
-    async onInit() {
+    onInit = async () => {
     };
 
-    async onDestroy() {
+    onDestroy = async () => {
     };
 
-    async onChange(change) {
+    onChange = async change => {
     };
 
 
@@ -84,7 +84,7 @@ export class Component extends HTMLElement {
     }
 
     async adoptedCallback() {
-        console.log('Element moved to new page.');
+
     }
 
     async attributeChangedCallback(name, oldValue, newValue) {
