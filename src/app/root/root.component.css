@@ -1,0 +1,42 @@
+@import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300;400;500;600;700;800;900&display=swap');
+
+* {
+    font-family: 'Source Code Pro', monospace;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center
+}
+
+.name {
+    margin: 50px;
+    font-family: Consolas, sans-serif;
+    border-radius: 50%;
+    background: #ffffff;
+    color: #b61111;
+    font-size: 40px;
+    padding: 20px;
+    width: 120px;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);
+    font-weight: 600;
+}
+
+.name-small {
+    font-weight: 600;
+    font-size: 15px;
+    color: #212121;
+}
+
+.author {
+    font-weight: 600;
+    margin-top: -20px;
+    font-size: 18px;
+    color: #212121;
+}
