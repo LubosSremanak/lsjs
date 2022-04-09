@@ -1,7 +1,7 @@
 {
   "name": "lsjs",
   "version": "1.0.0",
-  "description": "Javascript library with webpack for easier work with custom elements",
+  "description": "Javascript framework with webpack for easier work with custom elements",
   "keywords": [
     "javascript",
     "custom elements",
