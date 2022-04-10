@@ -28,10 +28,6 @@ The LS framework allows you to work with custom HTML elements as components.
        * [Props](#props-1)
        * [Events](#events)
 
-<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
-
-
-
 ## Installation
 Clone repository
 ```console
