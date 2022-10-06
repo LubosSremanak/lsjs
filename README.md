@@ -59,7 +59,7 @@ Each component must be declared in the module.
 import Module from "../../ls/model/module";
 import {RootComponent} from "./root/root.component";
 
-let components = [
+const components = [
     RootComponent,
 ]
 new Module(components);
@@ -75,7 +75,7 @@ RouterModule
 import RouterModule from "../../ls/model/router.module";
 import {HomeComponent} from "./root/home/home.component";
 
-let routes = [
+const routes = [
     {path: '', component: HomeComponent},
 ]
 new RouterModule(routes);
